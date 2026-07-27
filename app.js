@@ -212,20 +212,29 @@ function showDemoData() {
 // Paso 1: Confirmar Ubicación (avanzar a confirmación)
 locationForm.addEventListener("submit", function (e) {
   e.preventDefault();
-
+ 
   const selectedRow = businessSelect.value;
+  const selectedService = document.getElementById("service-select").value;
+  
   if (!selectedRow) {
     alert("Por favor selecciona tu negocio.");
+    return;
+  }
+  if (!selectedService) {
+    alert("Por favor selecciona un paquete de servicio de Totalplay.");
     return;
   }
 
   // Buscar objeto del negocio seleccionado
   selectedBusiness = allBusinesses.find(b => b.row == selectedRow);
-
+  
+  // Guardar el servicio seleccionado en el objeto
+  selectedBusiness.servicio = selectedService;
+ 
   // Mostrar pantalla intermedia de confirmación
   inputScreen.style.display = "none";
   confirmDialogScreen.style.display = "block";
-
+ 
   // Llenar resumen del negocio
   businessSummaryCard.innerHTML = `
     <div class="summary-item">
@@ -237,6 +246,10 @@ locationForm.addEventListener("submit", function (e) {
       <div class="summary-val">${selectedBusiness.nombre}</div>
     </div>
     <div class="summary-item">
+      <div class="summary-label">Servicio Totalplay</div>
+      <div class="summary-val" style="color: #ff007f; font-weight: 600;">${selectedBusiness.servicio}</div>
+    </div>
+    <div class="summary-item">
       <div class="summary-label">Coordenadas a Registrar</div>
       <div class="summary-val" style="font-family: monospace; font-size: 0.95rem;">
         ${marker.getLatLng().lat.toFixed(6)}, ${marker.getLatLng().lng.toFixed(6)}
@@ -244,19 +257,19 @@ locationForm.addEventListener("submit", function (e) {
     </div>
   `;
 });
-
+ 
 // Guardar en la hoja de cálculo
 async function sendToSheets(respuesta) {
   const lat = marker.getLatLng().lat;
   const lng = marker.getLatLng().lng;
-
+ 
   if (WEB_APP_URL.includes("XXXXXXXXXXXX")) {
     // Simular envío
     return new Promise((resolve) => setTimeout(() => {
       resolve({ status: "success", datetime: new Date().toLocaleString() });
     }, 1000));
   }
-
+ 
   const response = await fetch(WEB_APP_URL, {
     method: "POST",
     mode: "no-cors",
@@ -267,10 +280,11 @@ async function sendToSheets(respuesta) {
       row: selectedBusiness.row,
       lat: lat,
       lng: lng,
-      respuesta: respuesta
+      respuesta: respuesta,
+      servicio: selectedBusiness.servicio // Enviamos el servicio
     })
   });
-
+ 
   // Al usar no-cors, la respuesta es opaca. Generamos la fecha local.
   return { status: "success", datetime: new Date().toLocaleString("es-MX") };
 }

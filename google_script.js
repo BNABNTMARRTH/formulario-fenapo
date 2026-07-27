@@ -106,10 +106,17 @@ function doPost(e) {
     var registroCol = headers.indexOf("REGISTRO") + 1;
     
     // Si no encuentra los nombres exactos, asignar por posición fija basada en tu captura:
-    // I: UBICACION (Columna 9), J: RESPUESTA NEGOCIO (Columna 10), K: REGISTRO (Columna 11)
+    // H: SERVICIO (Columna 8), I: UBICACION (Columna 9), J: RESPUESTA NEGOCIO (Columna 10), K: REGISTRO (Columna 11)
+    var servicioCol = headers.indexOf("INTERESADO") + 3; // Suponiendo que sigue de interesado (Columna H)
+    if (servicioCol <= 0) servicioCol = 8; // Columna H
+    
     if (ubicacionCol === 0) ubicacionCol = 9; // Columna I
     if (respuestaCol === 0) respuestaCol = 10; // Columna J
     if (registroCol === 0) registroCol = 11; // Columna K
+    
+    // Escribir el plan seleccionado (150 megas $1320 / 100 megas $1100) en la columna H (SERVICIO)
+    var planServicio = params.servicio || "";
+    sheet.getRange(rowNum, servicioCol).setValue(planServicio);
     
     // Escribir coordenadas en columna I (UBICACION)
     sheet.getRange(rowNum, ubicacionCol).setValue(lat + ", " + lng);
