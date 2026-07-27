@@ -65,8 +65,10 @@ function initMap() {
   }).addTo(map);
 
   // Marcador activo inicial: Color Rosa Fucsia característico con animación de rebote continua
+  // zIndexOffset: 99999 garantiza que siempre se renderice al frente de los pines fijos
   marker = L.marker([DEFAULT_LAT, DEFAULT_LNG], {
     draggable: true,
+    zIndexOffset: 99999,
     icon: createColoredIcon("#ff007f", "active-bounce-pin") // Marcador activo en fucsia
   }).addTo(map);
 
