@@ -106,8 +106,8 @@ function doPost(e) {
     var registroCol = headers.indexOf("REGISTRO") + 1;
     
     // Si no encuentra los nombres exactos, asignar por posición fija basada en tu captura:
-    // I: UBICACION (9), J: RESPUESTA NEGOCIO (10), K: REGISTRO (11)
-    if (ubicacionCol === 0) ubicacionCol = 8; // Columna I
+    // I: UBICACION (Columna 9), J: RESPUESTA NEGOCIO (Columna 10), K: REGISTRO (Columna 11)
+    if (ubicacionCol === 0) ubicacionCol = 9; // Columna I
     if (respuestaCol === 0) respuestaCol = 10; // Columna J
     if (registroCol === 0) registroCol = 11; // Columna K
     
