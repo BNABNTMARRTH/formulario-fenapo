@@ -90,17 +90,29 @@ header {
 /* Pantalla Completa del mapa como Modal Centrado */
 .map-container-wrapper.fullscreen {
   position: fixed;
-  top: 5%;
-  left: 5%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centrado absoluto perfecto */
   width: 90vw;
   height: 90vh;
   z-index: 9999;
   margin: 0;
   border-radius: 16px;
   background: var(--bg-primary);
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 0 1000px rgba(0, 0, 0, 0.7); /* Efecto modal con backdrop oscuro */
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.8), 0 0 0 1000px rgba(0, 0, 0, 0.75); /* Efecto modal con backdrop oscuro */
   border: 1px solid var(--accent-color);
-  animation: scaleUp 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+  animation: scaleUpModal 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
+
+@keyframes scaleUpModal {
+  from {
+    transform: translate(-50%, -50%) scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
 }
 
 .map-container-wrapper.fullscreen #map {
