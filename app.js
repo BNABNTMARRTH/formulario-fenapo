@@ -51,21 +51,39 @@ function initMap() {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
+  // Marcador activo inicial con una clase CSS personalizada para darle un pulso o animación
   marker = L.marker([DEFAULT_LAT, DEFAULT_LNG], {
     draggable: true
   }).addTo(map);
 
+  // Añadir clase de animación CSS al marcador activo al cargarse o reposicionarse
+  if (marker._icon) {
+    marker._icon.classList.add("active-pulse-marker");
+  }
+
   marker.on('dragend', function () {
     const position = marker.getLatLng();
     updateCoordinates(position.lat, position.lng);
+    triggerPulseAnimation();
   });
 
   map.on('click', function (e) {
     marker.setLatLng(e.latlng);
     updateCoordinates(e.latlng.lat, e.latlng.lng);
+    triggerPulseAnimation();
   });
 
   updateCoordinates(DEFAULT_LAT, DEFAULT_LNG);
+}
+
+// Disparar animación de bote/rebote temporal en el marcador activo
+function triggerPulseAnimation() {
+  if (marker._icon) {
+    marker._icon.classList.remove("active-pulse-marker");
+    // Forzar reflow para reiniciar la animación
+    void marker._icon.offsetWidth;
+    marker._icon.classList.add("active-pulse-marker");
+  }
 }
 
 function updateCoordinates(lat, lng) {
@@ -73,7 +91,19 @@ function updateCoordinates(lat, lng) {
   lngPreview.textContent = lng.toFixed(6);
 }
 
-// Dibujar en el mapa los marcadores de negocios ya confirmados
+// Lista de filtros de colores CSS (hue-rotate) para dar colores únicos a cada pin
+const pinColorFilters = [
+  "hue-rotate(60deg) saturate(1.5)",   // Verde
+  "hue-rotate(120deg) saturate(2)",   // Cyan
+  "hue-rotate(180deg) saturate(2)",   // Azul cobalto
+  "hue-rotate(240deg) saturate(1.8)", // Violeta/Morado
+  "hue-rotate(300deg) saturate(2)",   // Rosa
+  "hue-rotate(0deg) saturate(2) brightness(0.8)", // Rojo fuerte
+  "hue-rotate(35deg) saturate(2.5)",  // Naranja
+  "hue-rotate(80deg) saturate(2)"     // Verde limón
+];
+
+// Dibujar en el mapa los marcadores de negocios ya confirmados con colores diferentes
 function drawConfirmedMarkers(confirmados) {
   // Limpiar marcadores confirmados anteriores si existen
   confirmedMarkers.forEach(m => map.removeLayer(m));
@@ -81,12 +111,22 @@ function drawConfirmedMarkers(confirmados) {
 
   if (!confirmados) return;
 
-  confirmados.forEach(c => {
-    // Creamos un marcador estático con un color o icono distintivo
-    // Usamos el icono por defecto pero le ponemos un popup con la información
+  confirmados.forEach((c, index) => {
+    // Creamos el marcador estático
     const m = L.marker([c.lat, c.lng]).addTo(map);
+    
+    // Le asignamos un color único usando un filtro CSS secuencial
+    const colorFilter = pinColorFilters[index % pinColorFilters.length];
+    
+    // Aplicamos el filtro al icono una vez que esté renderizado en el mapa
+    m.on('add', function() {
+      if (m._icon) {
+        m._icon.style.filter = colorFilter;
+      }
+    });
+    
     m.bindPopup(`
-      <div style="font-family: 'Outfit', sans-serif; color: #0a0b10;">
+      <div style="font-family: 'Outfit', sans-serif; color: #0a0b10; min-width: 140px;">
         <strong style="color: #ff007f; font-size: 0.95rem;">${c.negocio}</strong><br/>
         <span style="font-size: 0.85rem; color: #555;">Resp: ${c.nombre}</span><br/>
         <span style="font-size: 0.75rem; color: #888;">Registrado: ${c.fechaHora || 'N/D'}</span>
