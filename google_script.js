@@ -43,7 +43,7 @@ function doGet(e) {
     var negocio = row[negocioIdx] ? row[negocioIdx].toString().trim() : "";
     var ubicacion = row[ubicacionIdx] ? row[ubicacionIdx].toString().trim() : "";
     var respuesta = row[respuestaIdx] ? row[respuestaIdx].toString().trim().toUpperCase() : "";
-    var fechaHora = row[9] ? row[9].toString().trim() : ""; // Columna J (índice 9 en array 0-indexed)
+    var fechaHora = row[10] ? row[10].toString().trim() : ""; // Columna K (índice 10 en array 0-indexed)
     
     // Contamos si ya aceptaron
     if (respuesta === "ACEPTO" || respuesta === "SI") {
@@ -100,34 +100,30 @@ function doPost(e) {
       return h ? h.toString().trim().toUpperCase() : "";
     });
     
+    // Buscar columnas por nombre normalizado
     var ubicacionCol = headers.indexOf("UBICACION") + 1;
     var respuestaCol = headers.indexOf("RESPUESTA NEGOCIO") + 1;
+    var registroCol = headers.indexOf("REGISTRO") + 1;
     
-    // Fallback para buscar columnas si no son exactas
-    if (respuestaCol === 0) {
-      for (var col = 0; col < headers.length; col++) {
-        if (headers[col].indexOf("RESPUESTA") > -1) {
-          respuestaCol = col + 1;
-          break;
-        }
-      }
-    }
+    // Si no encuentra los nombres exactos, asignar por posición fija basada en tu captura:
+    // I: UBICACION (9), J: RESPUESTA NEGOCIO (10), K: REGISTRO (11)
+    if (ubicacionCol === 0) ubicacionCol = 8; // Columna I
+    if (respuestaCol === 0) respuestaCol = 10; // Columna J
+    if (registroCol === 0) registroCol = 11; // Columna K
     
-    if (ubicacionCol > 0 && respuestaCol > 0) {
-      // Escribir coordenadas y respuesta (ACEPTO/NO ACEPTO)
-      sheet.getRange(rowNum, ubicacionCol).setValue(lat + ", " + lng);
-      sheet.getRange(rowNum, respuestaCol).setValue(respuesta);
+    // Escribir coordenadas en columna I (UBICACION)
+    sheet.getRange(rowNum, ubicacionCol).setValue(lat + ", " + lng);
+    
+    // Escribir la respuesta (ACEPTO / NO ACEPTO) en columna J (RESPUESTA NEGOCIO)
+    sheet.getRange(rowNum, respuestaCol).setValue(respuesta);
+    
+    // Escribir la fecha y hora en columna K (REGISTRO)
+    var formattedDate = Utilities.formatDate(new Date(), "America/Mexico_City", "dd/MM/yyyy HH:mm:ss");
+    sheet.getRange(rowNum, registroCol).setValue(formattedDate);
+    
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", datetime: formattedDate }))
+      .setMimeType(ContentService.MimeType.JSON);
       
-      // Escribir la marca de tiempo de registro en la Columna J (Columna número 10)
-      var formattedDate = Utilities.formatDate(new Date(), "America/Mexico_City", "dd/MM/yyyy HH:mm:ss");
-      sheet.getRange(rowNum, 10).setValue(formattedDate);
-      
-      return ContentService.createTextOutput(JSON.stringify({ status: "success", datetime: formattedDate }))
-        .setMimeType(ContentService.MimeType.JSON);
-    } else {
-      return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Columnas 'UBICACION' o 'RESPUESTA NEGOCIO' no encontradas" }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
   } catch(error) {
     return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
