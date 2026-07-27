@@ -108,17 +108,20 @@ header {
   border-radius: 0 0 14px 14px;
 }
 
-/* Animación de salto continuo para el marcador activo */
+/* Animación de pulso/latido continuo manteniendo la punta fija en la base */
 .active-bounce-pin {
-  animation: activeBounce 1.2s infinite ease-in-out;
+  animation: activePulse 1.5s infinite ease-in-out;
+  transform-origin: bottom center; /* La punta inferior del marcador no se mueve */
 }
 
-@keyframes activeBounce {
+@keyframes activePulse {
   0%, 100% {
-    transform: translateY(0) scale(1);
+    transform: scale(1);
+    filter: drop-shadow(0 2px 4px rgba(255, 0, 127, 0.4));
   }
   50% {
-    transform: translateY(-14px) scale(1.05); /* Salta hacia arriba */
+    transform: scale(1.18); /* Crece sutilmente */
+    filter: drop-shadow(0 8px 16px rgba(255, 0, 127, 0.7)); /* Mayor brillo */
   }
 }
 
