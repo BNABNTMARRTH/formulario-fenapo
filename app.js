@@ -44,8 +44,8 @@ const locationForm = document.getElementById("location-form");
 // Función para crear un icono SVG con el color deseado en formato Leaflet.divIcon
 function createColoredIcon(color, className = "") {
   return L.divIcon({
-    className: 'custom-colored-pin ' + className,
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
+    className: 'custom-colored-pin',
+    html: `<svg class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36" style="display: block;">
              <path fill="${color}" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
            </svg>`,
     iconSize: [36, 36],
