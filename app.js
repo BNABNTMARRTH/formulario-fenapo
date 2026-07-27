@@ -41,6 +41,19 @@ const successMessage = document.getElementById("success-message");
 
 const locationForm = document.getElementById("location-form");
 
+// Función para crear un icono SVG con el color deseado en formato Leaflet.divIcon
+function createColoredIcon(color, className = "") {
+  return L.divIcon({
+    className: 'custom-colored-pin ' + className,
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
+             <path fill="${color}" stroke="#ffffff" stroke-width="1.5" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+           </svg>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -32]
+  });
+}
+
 // Inicializar Mapa de Leaflet
 function initMap() {
   map = L.map('map').setView([DEFAULT_LAT, DEFAULT_LNG], 17);
@@ -51,39 +64,23 @@ function initMap() {
     attribution: '© OpenStreetMap contributors'
   }).addTo(map);
 
-  // Marcador activo inicial con una clase CSS personalizada para darle un pulso o animación
+  // Marcador activo inicial: Color Rosa Fucsia característico con animación de rebote continua
   marker = L.marker([DEFAULT_LAT, DEFAULT_LNG], {
-    draggable: true
+    draggable: true,
+    icon: createColoredIcon("#ff007f", "active-bounce-pin") // Marcador activo en fucsia
   }).addTo(map);
-
-  // Añadir clase de animación CSS al marcador activo al cargarse o reposicionarse
-  if (marker._icon) {
-    marker._icon.classList.add("active-pulse-marker");
-  }
 
   marker.on('dragend', function () {
     const position = marker.getLatLng();
     updateCoordinates(position.lat, position.lng);
-    triggerPulseAnimation();
   });
 
   map.on('click', function (e) {
     marker.setLatLng(e.latlng);
     updateCoordinates(e.latlng.lat, e.latlng.lng);
-    triggerPulseAnimation();
   });
 
   updateCoordinates(DEFAULT_LAT, DEFAULT_LNG);
-}
-
-// Disparar animación de bote/rebote temporal en el marcador activo
-function triggerPulseAnimation() {
-  if (marker._icon) {
-    marker._icon.classList.remove("active-pulse-marker");
-    // Forzar reflow para reiniciar la animación
-    void marker._icon.offsetWidth;
-    marker._icon.classList.add("active-pulse-marker");
-  }
 }
 
 function updateCoordinates(lat, lng) {
@@ -91,16 +88,18 @@ function updateCoordinates(lat, lng) {
   lngPreview.textContent = lng.toFixed(6);
 }
 
-// Lista de filtros de colores CSS (hue-rotate) para dar colores únicos a cada pin
-const pinColorFilters = [
-  "hue-rotate(60deg) saturate(1.5)",   // Verde
-  "hue-rotate(120deg) saturate(2)",   // Cyan
-  "hue-rotate(180deg) saturate(2)",   // Azul cobalto
-  "hue-rotate(240deg) saturate(1.8)", // Violeta/Morado
-  "hue-rotate(300deg) saturate(2)",   // Rosa
-  "hue-rotate(0deg) saturate(2) brightness(0.8)", // Rojo fuerte
-  "hue-rotate(35deg) saturate(2.5)",  // Naranja
-  "hue-rotate(80deg) saturate(2)"     // Verde limón
+// Colores únicos para cada pin confirmado (sin repetirse)
+const pinColors = [
+  "#22c55e", // Verde esmeralda
+  "#06b6d4", // Cyan
+  "#3b82f6", // Azul
+  "#8b5cf6", // Violeta
+  "#f43f5e", // Rosa
+  "#eab308", // Amarillo
+  "#f97316", // Naranja
+  "#14b8a6", // Verde azulado
+  "#ec4899", // Magenta
+  "#6b7280"  // Gris
 ];
 
 // Dibujar en el mapa los marcadores de negocios ya confirmados con colores diferentes
@@ -112,18 +111,13 @@ function drawConfirmedMarkers(confirmados) {
   if (!confirmados) return;
 
   confirmados.forEach((c, index) => {
-    // Creamos el marcador estático
-    const m = L.marker([c.lat, c.lng]).addTo(map);
+    // Escoger un color diferente secuencial del array de colores
+    const color = pinColors[index % pinColors.length];
     
-    // Le asignamos un color único usando un filtro CSS secuencial
-    const colorFilter = pinColorFilters[index % pinColorFilters.length];
-    
-    // Aplicamos el filtro al icono una vez que esté renderizado en el mapa
-    m.on('add', function() {
-      if (m._icon) {
-        m._icon.style.filter = colorFilter;
-      }
-    });
+    // Crear marcador estático con el color específico
+    const m = L.marker([c.lat, c.lng], {
+      icon: createColoredIcon(color)
+    }).addTo(map);
     
     m.bindPopup(`
       <div style="font-family: 'Outfit', sans-serif; color: #0a0b10; min-width: 140px;">

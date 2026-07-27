@@ -108,18 +108,36 @@ header {
   border-radius: 0 0 14px 14px;
 }
 
-/* Animación de salto (bounce) para el marcador activo en el mapa */
-.active-pulse-marker {
-  animation: markerBounce 0.8s ease-in-out;
+/* Animación de salto continuo para el marcador activo */
+.active-bounce-pin {
+  animation: activeBounce 1.2s infinite ease-in-out;
 }
 
-@keyframes markerBounce {
+@keyframes activeBounce {
   0%, 100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-14px) scale(1.05); /* Salta hacia arriba */
   }
+}
+
+/* Remover fondo y borde por defecto que Leaflet le agrega a los DivIcons */
+.custom-colored-pin {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s ease;
+}
+
+/* Efecto hover sutil al pasar el mouse por encima de los pines confirmados */
+.custom-colored-pin:hover {
+  transform: scale(1.15);
+  cursor: pointer;
 }
 
 h1 {
