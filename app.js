@@ -176,9 +176,10 @@ businessSelect.addEventListener("change", () => {
 });
 
 function updateCounter(disponibles) {
-  availableCountEl.textContent = disponibles;
+  const dispMostrar = Math.max(0, disponibles);
+  availableCountEl.textContent = dispMostrar;
   const totalCupos = 30;
-  const ocupados = Math.max(0, totalCupos - disponibles);
+  const ocupados = Math.max(0, totalCupos - dispMostrar);
   const porcentaje = (ocupados / totalCupos) * 100;
   progressBar.style.width = `${porcentaje}%`;
 }
@@ -369,6 +370,13 @@ confirmNoBtn.addEventListener("click", async () => {
 
 // Función auxiliar para repoblar el selector select
 function populateBusinessSelect() {
+  if (baseDisponibles <= 0) {
+    businessSelect.innerHTML = '<option value="" disabled selected>Sin espacios disponibles (0 de 30)</option>';
+    businessSelect.disabled = true;
+    submitBtn.disabled = true;
+    return;
+  }
+
   businessSelect.innerHTML = '<option value="" disabled selected>-- Selecciona tu negocio --</option>';
   if (allBusinesses.length > 0) {
     allBusinesses.forEach(item => {
@@ -380,7 +388,7 @@ function populateBusinessSelect() {
     businessSelect.disabled = false;
     submitBtn.disabled = false;
   } else {
-    businessSelect.innerHTML = '<option value="" disabled>Todos los negocios ya han confirmado</option>';
+    businessSelect.innerHTML = '<option value="" disabled selected>Todos los negocios ya han confirmado</option>';
     businessSelect.disabled = true;
     submitBtn.disabled = true;
   }
