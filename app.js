@@ -146,8 +146,8 @@ async function loadData() {
     
     const data = await response.json();
     
-    // Guardar disponibilidad base
-    baseDisponibles = data.disponibles;
+    // Guardar disponibilidad base (Forzado a 0 para simulación)
+    baseDisponibles = 0; // data.disponibles;
     updateCounter(baseDisponibles);
     
     // Dibujar pines de negocios ya confirmados
